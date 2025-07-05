@@ -1,14 +1,13 @@
 'use client';
-import type React from 'react';
-import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MapPin, Plus, Edit, Trash2, Eye, ArrowLeft } from 'lucide-react';
-import { Head, Link, router } from '@inertiajs/react';
-import { Venue } from '@/types/venue';
 import AppLayout from '@/layouts/app-layout';
-import { Badge } from '@/components/ui/badge';
+import { Venue } from '@/types/venue';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Edit, Eye, MapPin, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface BreadcrumbItem {
     title: string;
@@ -49,9 +48,9 @@ export default function AdminVenues({ venues, auth, flash }: AdminVenuesProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Venue Management" />
-            <div className="container mx-auto p-4 max-w-7xl">
+            <div className="container mx-auto max-w-7xl p-4">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">Venue Management</h1>
                         <p className="text-gray-600">Manage MUST venues</p>
@@ -59,7 +58,7 @@ export default function AdminVenues({ venues, auth, flash }: AdminVenuesProps) {
                     <div className="flex items-center gap-4">
                         <Link href="/dashboard">
                             <Button variant="outline">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Dashboard
                             </Button>
                         </Link>
@@ -67,7 +66,7 @@ export default function AdminVenues({ venues, auth, flash }: AdminVenuesProps) {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Venues</CardTitle>
@@ -88,7 +87,7 @@ export default function AdminVenues({ venues, auth, flash }: AdminVenuesProps) {
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm /font-medium">Without Blocks</CardTitle>
+                            <CardTitle className="/font-medium text-sm">Without Blocks</CardTitle>
                             <Badge variant="outline" className="h-4 w-4" />
                         </CardHeader>
                         <CardContent>
@@ -98,21 +97,19 @@ export default function AdminVenues({ venues, auth, flash }: AdminVenuesProps) {
                 </div>
 
                 {/* Actions */}
-                <div className="flex justify-between items-center mb-6">
+                <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-xl font-semibold">All Venues</h2>
                     <Link href="/admin/venues/create">
                         <Button className="bg-green-600 hover:bg-green-700">
-                            <Plus className="h-4 w-4 mr-2" />
+                            <Plus className="mr-2 h-4 w-4" />
                             Add New Venue
                         </Button>
                     </Link>
                 </div>
 
                 {/* Flash Messages */}
-                {flash.success && (
-                    <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md">{flash.success}</div>
-                )}
-                {flash.error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{flash.error}</div>}
+                {flash.success && <div className="mb-4 rounded-md bg-green-100 p-4 text-green-700">{flash.success}</div>}
+                {flash.error && <div className="mb-4 rounded-md bg-red-100 p-4 text-red-700">{flash.error}</div>}
 
                 {/* Venues Table */}
                 <Card>
@@ -168,11 +165,7 @@ export default function AdminVenues({ venues, auth, flash }: AdminVenuesProps) {
                                                             <Edit className="h-4 w-4" />
                                                         </Button>
                                                     </Link>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handleDeleteVenue(venue.id)}
-                                                    >
+                                                    <Button variant="outline" size="sm" onClick={() => handleDeleteVenue(venue.id)}>
                                                         <Trash2 className="h-4 w-4 text-red-600" />
                                                     </Button>
                                                 </div>

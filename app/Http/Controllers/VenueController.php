@@ -14,7 +14,7 @@ class VenueController extends Controller
     {
         try {
             $venues = Venue::all();
-            return Inertia::render('Dashboard', [
+            return Inertia::render('admin/venue/index', [
                 'venues' => $venues,
                 'flash' => session('flash', []),
             ]);
@@ -29,14 +29,14 @@ class VenueController extends Controller
 
     public function create()
     {
-        return Inertia::render('admin/venues/create', [
+        return Inertia::render('admin/venue/create', [
             'flash' => session('flash', []),
         ]);
     }
 
     public function edit(Venue $venue)
     {
-        return Inertia::render('admin/venues/edit', [
+        return Inertia::render('admin/venue/edit', [
             'venue' => $venue,
             'flash' => session('flash', []),
         ]);

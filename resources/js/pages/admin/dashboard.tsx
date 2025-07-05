@@ -1,9 +1,11 @@
 'use client';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { Venue } from '@/types/venue';
-import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { MapPin, Plus } from 'lucide-react';
 
 interface BreadcrumbItem {
     title: string;
@@ -14,136 +16,107 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' 
 
 interface DashboardProps {
     venues: Venue[];
+    auth: { user: any };
+    flash: { success?: string; error?: string };
 }
 
-export default function Dashboard({ venues }: DashboardProps) {
+export default function Dashboard({ venues, auth, flash }: DashboardProps) {
     // Defensive: ensure venues is always an array
     const safeVenues = Array.isArray(venues) ? venues : [];
-    const [editingVenue, setEditingVenue] = useState<Venue | null>(null);
-    const [newVenue, setNewVenue] = useState<Partial<Venue>>({
-        name: '',
-        block_name: '',
-        description: '',
-        latitude: undefined,
-        longitude: undefined,
-    });
-
-    const handleAddVenue = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const latitude = typeof newVenue.latitude === 'string' ? Number.parseFloat(newVenue.latitude) : newVenue.latitude;
-            const longitude = typeof newVenue.longitude === 'string' ? Number.parseFloat(newVenue.longitude) : newVenue.longitude;
-            if (typeof latitude !== 'number' || isNaN(latitude) || typeof longitude !== 'number' || isNaN(longitude)) {
-                alert('Invalid latitude or longitude');
-                return;
-            }
-            await router.post(
-                '/venues',
-                {
-                    name: newVenue.name,
-                    block_name: newVenue.block_name || null,
-                    description: newVenue.description,
-                    latitude,
-                    longitude,
-                },
-                {
-                    onSuccess: () => {
-                        setNewVenue({
-                            name: '',
-                            block_name: '',
-                            description: '',
-                            latitude: undefined,
-                            longitude: undefined,
-                        });
-                        alert('Venue added successfully!');
-                    },
-                    onError: () => alert('Error adding venue'),
-                },
-            );
-        } catch (error) {
-            console.error('Error adding venue:', error);
-            alert('Error adding venue');
-        }
-    };
-
-    const handleUpdateVenue = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!editingVenue) return;
-        try {
-            const latitude = typeof editingVenue.latitude === 'string' ? Number.parseFloat(editingVenue.latitude) : editingVenue.latitude;
-            const longitude = typeof editingVenue.longitude === 'string' ? Number.parseFloat(editingVenue.longitude) : editingVenue.longitude;
-            if (typeof latitude !== 'number' || isNaN(latitude) || typeof longitude !== 'number' || isNaN(longitude)) {
-                alert('Invalid latitude or longitude');
-                return;
-            }
-            await router.put(
-                `/venues/${editingVenue.id}`,
-                {
-                    name: editingVenue.name,
-                    block_name: editingVenue.block_name || null,
-                    description: editingVenue.description,
-                    latitude,
-                    longitude,
-                },
-                {
-                    onSuccess: () => {
-                        setEditingVenue(null);
-                        alert('Venue updated successfully!');
-                    },
-                    onError: () => alert('Error updating venue'),
-                },
-            );
-        } catch (error) {
-            console.error('Error updating venue:', error);
-            alert('Error updating venue');
-        }
-    };
-
-    const handleDeleteVenue = async (id: number) => {
-        if (confirm('Are you sure you want to delete this venue?')) {
-            try {
-                await router.delete(`/venues/${id}`, {
-                    onSuccess: () => alert('Venue deleted successfully!'),
-                    onError: () => alert('Error deleting venue'),
-                });
-            } catch (error) {
-                console.error('Error deleting venue:', error);
-                alert('Error deleting venue');
-            }
-        }
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-            <div className="p-4">
-                <h1 className="mb-6 text-3xl font-bold text-gray-900">Venue Management</h1>
-                {/* Add/Edit Venue Form */}
-                <Card className="mb-6 max-w-lg">
-                    <CardHeader>
-                        <CardTitle>{editingVenue ? 'Edit Venue' : 'Add New Venue'}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={editingVenue ? handleUpdateVenue : handleAddVenue} className="space-y-4">
-                            {/* ...existing code... */}
-                        </form>
-                    </CardContent>
-                </Card>
-                {/* Venue List */}
+            <Head title="Admin Dashboard" />
+            <div className="container mx-auto max-w-7xl p-4">
+                <div className="mb-8 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                        <p className="text-gray-600">Overview of MUST venue management</p>
+                    </div>
+                    <Link href="/admin/venues">
+                        <Button className="bg-blue-600 hover:bg-blue-700">
+                            <MapPin className="mr-2 h-4 w-4" />
+                            Manage Venues
+                        </Button>
+                    </Link>
+                </div>
+
+                {/* Flash Messages */}
+                {flash.success && <div className="mb-4 rounded-md bg-green-100 p-4 text-green-700">{flash.success}</div>}
+                {flash.error && <div className="mb-4 rounded-md bg-red-100 p-4 text-red-700">{flash.error}</div>}
+
+                {/* Stats Cards */}
+                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Venues</CardTitle>
+                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{safeVenues.length}</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">With Blocks</CardTitle>
+                            <Badge variant="secondary" className="h-4 w-4" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{safeVenues.filter((v) => v.block_name).length}</div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Without Blocks</CardTitle>
+                            <Badge variant="outline" className="h-4 w-4" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{safeVenues.filter((v) => !v.block_name).length}</div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Recent Venues */}
                 <Card>
-                    <CardHeader>
-                        <CardTitle>Venues</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle>Recent Venues</CardTitle>
+                        <Link href="/admin/venues/create">
+                            <Button className="bg-green-600 hover:bg-green-700">
+                                <Plus className="mr-2 h-4 w-4" />
+                                Add New Venue
+                            </Button>
+                        </Link>
                     </CardHeader>
                     <CardContent>
                         {safeVenues.length === 0 ? (
                             <p className="text-gray-600">No venues available.</p>
                         ) : (
-                            <div className="space-y-2">
-                                {safeVenues.map((venue) => (
-                                    <div key={venue.id} className="flex items-center justify-between rounded-xl border p-2">
-                                        {/* ...existing code... */}
+                            <div className="space-y-4">
+                                {safeVenues.slice(0, 5).map((venue) => (
+                                    <div key={venue.id} className="flex items-center justify-between rounded-xl border p-3">
+                                        <div>
+                                            <h3 className="font-medium">{venue.name}</h3>
+                                            <p className="max-w-md truncate text-sm text-gray-600">{venue.description}</p>
+                                            {venue.block_name && (
+                                                <Badge variant="secondary" className="mt-1">
+                                                    {venue.block_name}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <Link href={`/admin/venues/edit/${venue.id}`}>
+                                            <Button variant="outline" size="sm">
+                                                View Details
+                                            </Button>
+                                        </Link>
                                     </div>
                                 ))}
+                                {safeVenues.length > 5 && (
+                                    <div className="mt-4 text-center">
+                                        <Link href="/admin/venues">
+                                            <Button variant="link">View All Venues</Button>
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </CardContent>
