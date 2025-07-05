@@ -9,13 +9,7 @@ use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
 {
- 
     protected $rootView = 'app';
-
-    public function version(Request $request): ?string
-    {
-        return parent::version($request);
-    }
 
     public function share(Request $request): array
     {
@@ -28,11 +22,15 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'ziggy' => fn (): array => [
+            'ziggy' => fn(): array => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => [
+                'success' => $request->session()->get('flash.success'),
+                'error' => $request->session()->get('flash.error'),
+            ],
         ];
     }
 }
