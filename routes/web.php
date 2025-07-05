@@ -1,21 +1,18 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\VenueController;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+Route::get('/', [HomeController::class,'index'])->name('home');
 
-Route::get('/venues', [VenueController::class, 'index'])->name('venues.index');
-Route::post('/venues', [VenueController::class, 'store'])->name('venues.store');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('/venues', [VenueController::class, 'index'])->name('venues.index');
+    Route::post('/venues', [VenueController::class, 'store'])->name('venues.store');
+    Route::put('/venues/{venue}', [VenueController::class, 'update'])->name('venues.update');
+    Route::delete('/venues/{venue}', [VenueController::class, 'destroy'])->name('venues.destroy');
 });
-
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
