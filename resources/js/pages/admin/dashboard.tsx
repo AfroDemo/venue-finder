@@ -1,3 +1,4 @@
+'use client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,7 +8,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Venue } from '@/types/venue';
 import { Head, router } from '@inertiajs/react';
 import { Edit, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface BreadcrumbItem {
     title: string;
@@ -16,9 +17,11 @@ interface BreadcrumbItem {
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
-export default function Dashboard() {
-    const [venues, setVenues] = useState<Venue[]>([]);
-    const [loading, setLoading] = useState(true);
+interface DashboardProps {
+    venues: Venue[];
+}
+
+export default function Dashboard({ venues }: DashboardProps) {
     const [editingVenue, setEditingVenue] = useState<Venue | null>(null);
     const [newVenue, setNewVenue] = useState<Partial<Venue>>({
         name: '',
@@ -27,22 +30,6 @@ export default function Dashboard() {
         latitude: undefined,
         longitude: undefined,
     });
-
-    useEffect(() => {
-        fetchVenues();
-    }, []);
-
-    const fetchVenues = async () => {
-        try {
-            const response = await fetch('/venues');
-            const data: Venue[] = await response.json();
-            setVenues(data);
-        } catch (error) {
-            console.error('Error fetching venues:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleAddVenue = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,21 +40,29 @@ export default function Dashboard() {
                 alert('Invalid latitude or longitude');
                 return;
             }
-            await router.post('/venues', {
-                name: newVenue.name,
-                block_name: newVenue.block_name || null,
-                description: newVenue.description,
-                latitude,
-                longitude,
-            });
-            setNewVenue({
-                name: '',
-                block_name: '',
-                description: '',
-                latitude: undefined,
-                longitude: undefined,
-            });
-            fetchVenues();
+            await router.post(
+                '/venues',
+                {
+                    name: newVenue.name,
+                    block_name: newVenue.block_name || null,
+                    description: newVenue.description,
+                    latitude,
+                    longitude,
+                },
+                {
+                    onSuccess: () => {
+                        setNewVenue({
+                            name: '',
+                            block_name: '',
+                            description: '',
+                            latitude: undefined,
+                            longitude: undefined,
+                        });
+                        alert('Venue added successfully!');
+                    },
+                    onError: () => alert('Error adding venue'),
+                },
+            );
         } catch (error) {
             console.error('Error adding venue:', error);
             alert('Error adding venue');
@@ -84,15 +79,23 @@ export default function Dashboard() {
                 alert('Invalid latitude or longitude');
                 return;
             }
-            await router.put(`/venues/${editingVenue.id}`, {
-                name: editingVenue.name,
-                block_name: editingVenue.block_name || null,
-                description: editingVenue.description,
-                latitude,
-                longitude,
-            });
-            setEditingVenue(null);
-            fetchVenues();
+            await router.put(
+                `/venues/${editingVenue.id}`,
+                {
+                    name: editingVenue.name,
+                    block_name: editingVenue.block_name || null,
+                    description: editingVenue.description,
+                    latitude,
+                    longitude,
+                },
+                {
+                    onSuccess: () => {
+                        setEditingVenue(null);
+                        alert('Venue updated successfully!');
+                    },
+                    onError: () => alert('Error updating venue'),
+                },
+            );
         } catch (error) {
             console.error('Error updating venue:', error);
             alert('Error updating venue');
@@ -102,8 +105,10 @@ export default function Dashboard() {
     const handleDeleteVenue = async (id: number) => {
         if (confirm('Are you sure you want to delete this venue?')) {
             try {
-                await router.delete(`/venues/${id}`);
-                fetchVenues();
+                await router.delete(`/venues/${id}`, {
+                    onSuccess: () => alert('Venue deleted successfully!'),
+                    onError: () => alert('Error deleting venue'),
+                });
             } catch (error) {
                 console.error('Error deleting venue:', error);
                 alert('Error deleting venue');
@@ -111,28 +116,14 @@ export default function Dashboard() {
         }
     };
 
-    if (loading) {
-        return (
-            <AppLayout breadcrumbs={breadcrumbs}>
-                <Head title="Dashboard" />
-                <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                    <div className="text-center">
-                        <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
-                        <p className="mt-4 text-gray-600">Loading venues...</p>
-                    </div>
-                </div>
-            </AppLayout>
-        );
-    }
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <h1 className="text-3xl font-bold text-gray-900">Venue Management</h1>
+            <div className="p-4">
+                <h1 className="mb-6 text-3xl font-bold text-gray-900">Venue Management</h1>
 
                 {/* Add/Edit Venue Form */}
-                <Card className="max-w-lg">
+                <Card className="mb-6 max-w-lg">
                     <CardHeader>
                         <CardTitle>{editingVenue ? 'Edit Venue' : 'Add New Venue'}</CardTitle>
                     </CardHeader>
