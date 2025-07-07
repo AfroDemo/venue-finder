@@ -6,9 +6,8 @@ use App\Http\Controllers\VenueController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
-
 Route::middleware(['auth'])->group(function () {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/venues', [VenueController::class, 'index'])->name('admin.venues');
     Route::get('/admin/venues/create', [VenueController::class, 'create'])->name('admin.venues.create');
