@@ -14,13 +14,13 @@ class DashboardController extends Controller
         $venues = Venue::all();
         $user=Auth::user();
 
-        if($user->role=='admin'){
+        // if($user->role=='admin'){
             return Inertia::render('admin/dashboard', [
             'venues' => $venues,
             'flash' => session('flash', []),
         ]);
-        }else{
-            return redirect()->route('home');
-        }
+        // }else{
+        //     return redirect()->route('home');
+        // }
     }
 }
