@@ -11,7 +11,7 @@ interface AppLayoutProps {
     breadcrumbs: BreadcrumbItem[];
 }
 
-export default function Layout({ children, breadcrumbs }: AppLayoutProps) {
+export default function Layout({ children,user, breadcrumbs }: AppLayoutProps) {
     return (
         <>
             <Head title="MUST Venue Finder" />
@@ -21,7 +21,7 @@ export default function Layout({ children, breadcrumbs }: AppLayoutProps) {
                         <div className="flex items-center justify-between">
                             <h1 className="text-2xl font-bold text-gray-900">MUST Venue Finder</h1>
                             <nav>
-                                {window.Laravel?.user ? (
+                                {user ? (
                                     <>
                                         <Link href="/dashboard" className="ml-4 text-primary hover:underline">
                                             Dashboard

@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import VenueMap from '@/components/VenueMap';
 import Layout from '@/layouts/layout';
 import { UserLocation, Venue } from '@/types/venue';
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { ChevronDown, ChevronUp, MapPin, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -22,6 +22,12 @@ interface HomePageProps {
     auth: { user: any } | null;
     flash: { success?: string; error?: string };
 }
+
+// Mbeya University main campus coordinates
+const CAMPUS_CENTER = {
+    lat: -8.941767828794479,
+    lng: 33.416173301851934,
+};
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371; // Earth's radius in km
@@ -104,11 +110,11 @@ export default function home({ venues, auth, flash }: HomePageProps) {
                 });
 
                 // Check if accuracy is reasonable
-                if (accuracy > 1000) {
-                    console.warn('Location accuracy is low:', accuracy, 'meters');
-                    // Show warning but still use the location
-                    alert(`Location accuracy is low (${Math.round(accuracy)}m). Consider enabling high accuracy mode in your device settings.`);
-                }
+                // if (accuracy > 1000) {
+                //     console.warn('Location accuracy is low:', accuracy, 'meters');
+                //     // Show warning but still use the location
+                //     alert(`Location accuracy is low (${Math.round(accuracy)}m). Consider enabling high accuracy mode in your device settings.`);
+                // }
 
                 setUserLocation({
                     lat: latitude,
@@ -260,7 +266,7 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
         });
 
     return (
-        <Layout breadcrumbs={breadcrumbs}>
+        <Layout breadcrumbs={breadcrumbs} user={auth.user}>
             <Head title="MUST Venue Finder" />
             <div className="min-h-screen bg-gray-50">
                 <div className="container mx-auto max-w-7xl p-4">
@@ -270,13 +276,6 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
                         <p className="mx-auto max-w-2xl text-lg text-gray-600 md:text-xl">
                             Easily find and navigate to venues on Mbeya University campus
                         </p>
-                        {auth?.user && (
-                            <div className="mt-4">
-                                <Link href="/dashboard" className="font-medium text-blue-600 hover:underline">
-                                    Go to Admin Dashboard
-                                </Link>
-                            </div>
-                        )}
                     </div>
 
                     {/* Flash Messages */}
@@ -339,7 +338,14 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
                                 {loading ? (
                                     <div className="flex h-full items-center justify-center bg-gray-200">Loading map...</div>
                                 ) : (
-                                    <VenueMap venues={filteredVenues} userLocation={userLocation} />
+                                    <VenueMap
+                                        venues={filteredVenues}
+                                        userLocation={userLocation}
+                                        centerLocation={CAMPUS_CENTER}
+                                        defaultZoom={16}
+                                        showUserRadius={true}
+                                        showDirections={false}
+                                    />
                                 )}
                             </div>
                             {userLocation && (
