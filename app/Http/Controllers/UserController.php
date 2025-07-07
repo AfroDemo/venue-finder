@@ -81,12 +81,18 @@ class UserController extends Controller
             ]);
 
             DB::beginTransaction();
-            $user->update([
+            $updateData = [
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
                 'role' => $validated['role'],
-            ]);
+            ];
+
+            // Only update password if provided
+            if (!empty($validated['password'])) {
+                $updateData['password'] = Hash::make($validated['password']);
+            }
+
+            $user->update($updateData);
             DB::commit();
 
             return redirect()->route('admin.users')->with('flash', ['success' => 'User updated successfully']);

@@ -1,143 +1,153 @@
 'use client';
-import type React from 'react';
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
 import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { User } from '@/types';
+import { Venue } from '@/types/venue';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface BreadcrumbItem {
     title: string;
     href: string;
 }
 
+interface EditVenueProps {
+    venue: Venue;
+}
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Users', href: '/admin/users' },
+    { title: 'Venues', href: '/admin/venues' },
     { title: 'Edit', href: '' },
 ];
 
-interface EditUserProps {
-    user: User;
-}
-
-export default function EditUser({ user }: EditUserProps) {
-    const [editingUser, setEditingUser] = useState<User>({ ...user, password: '' });
+export default function EditVenue({ venue }: EditVenueProps) {
+    const [editingVenue, setEditingVenue] = useState<Venue>({ ...venue });
 
     useEffect(() => {
-        setEditingUser({ ...user, password: '' });
-    }, [user]);
+        setEditingVenue({ ...venue });
+    }, [venue]);
 
-    const handleUpdateUser = async (e: React.FormEvent) => {
+    const handleUpdateVenue = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const payload: Partial<User> = {
-                name: editingUser.name,
-                email: editingUser.email,
-                role: editingUser.role,
-            };
-
-            // Only include password if it's not empty
-            if (editingUser.password) {
-                payload.password = editingUser.password;
+            const latitude = Number.parseFloat(String(editingVenue.latitude));
+            const longitude = Number.parseFloat(String(editingVenue.longitude));
+            if (isNaN(latitude) || isNaN(longitude)) {
+                alert('Invalid latitude or longitude');
+                return;
             }
-
             await router.put(
-                `/admin/users/${editingUser.id}`,
-                payload,
+                `/admin/venues/${editingVenue.id}`,
+                {
+                    name: editingVenue.name,
+                    block_name: editingVenue.block_name || null,
+                    description: editingVenue.description,
+                    latitude,
+                    longitude,
+                },
                 {
                     onSuccess: () => {
-                        alert('User updated successfully!');
-                        setEditingUser({ ...editingUser, password: '' });
+                        alert('Venue updated successfully!');
                     },
-                    onError: (errors) => {
-                        console.error('Update errors:', errors);
-                        alert('Error updating user: ' + (errors.message || 'Unknown error'));
-                    },
+                    onError: () => alert('Error updating venue'),
                 },
             );
         } catch (error) {
-            console.error('Error updating user:', error);
-            alert('Error updating user');
+            console.error('Error updating venue:', error);
+            alert('Error updating venue');
         }
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit User" />
+            <Head title="Edit Venue" />
             <div className="container mx-auto p-4 max-w-md">
                 <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
-                    <Link href="/admin/users">
+                    <h1 className="text-3xl font-bold text-gray-900">Edit Venue</h1>
+                    <Link href="/admin/venues">
                         <Button variant="outline">
                             <ArrowLeft className="h-4 w-4 mr-2" />
-                            Back to Users
+                            Back to Venues
                         </Button>
                     </Link>
                 </div>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Update User</CardTitle>
-                        <CardDescription>Update user information</CardDescription>
+                        <CardTitle>Update Venue</CardTitle>
+                        <CardDescription>Update venue information</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={handleUpdateUser} className="space-y-4">
+                        <form onSubmit={handleUpdateVenue} className="space-y-4">
                             <div>
-                                <Label htmlFor="edit-name">Name *</Label>
+                                <Label htmlFor="edit-name">Venue Name *</Label>
                                 <Input
                                     id="edit-name"
                                     required
-                                    value={editingUser.name}
-                                    onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                                    placeholder="Enter user name"
+                                    value={editingVenue.name}
+                                    onChange={(e) => setEditingVenue({ ...editingVenue, name: e.target.value })}
+                                    placeholder="Enter venue name"
                                 />
                             </div>
                             <div>
-                                <Label htmlFor="edit-email">Email *</Label>
+                                <Label htmlFor="edit-block">Block Name</Label>
                                 <Input
-                                    id="edit-email"
-                                    type="email"
+                                    id="edit-block"
+                                    value={editingVenue.block_name || ''}
+                                    onChange={(e) => setEditingVenue({ ...editingVenue, block_name: e.target.value })}
+                                    placeholder="Enter block name (optional)"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="edit-description">Description *</Label>
+                                <Textarea
+                                    id="edit-description"
                                     required
-                                    value={editingUser.email}
-                                    onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                                    placeholder="Enter user email"
+                                    value={editingVenue.description}
+                                    onChange={(e) => setEditingVenue({ ...editingVenue, description: e.target.value })}
+                                    placeholder="Enter venue description"
                                 />
                             </div>
-                            <div>
-                                <Label htmlFor="edit-password">Password</Label>
-                                <Input
-                                    id="edit-password"
-                                    type="password"
-                                    value={editingUser.password || ''}
-                                    onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
-                                    placeholder="Enter new password (optional)"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="edit-role">Role *</Label>
-                                <Select
-                                    value={editingUser.role}
-                                    onValueChange={(value) => setEditingUser({ ...editingUser, role: value })}
-                                >
-                                    <SelectTrigger id="edit-role">
-                                        <SelectValue placeholder="Select role" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="user">User</SelectItem>
-                                        <SelectItem value="admin">Admin</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="edit-latitude">Latitude *</Label>
+                                    <Input
+                                        id="edit-latitude"
+                                        type="number"
+                                        step="any"
+                                        required
+                                        value={editingVenue.latitude}
+                                        onChange={(e) =>
+                                            setEditingVenue({ ...editingVenue, latitude: Number.parseFloat(e.target.value) })
+                                        }
+                                        placeholder="-8.9094"
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="edit-longitude">Longitude *</Label>
+                                    <Input
+                                        id="edit-longitude"
+                                        type="number"
+                                        step="any"
+                                        required
+                                        value={editingVenue.longitude}
+                                        onChange={(e) =>
+                                            setEditingVenue({ ...editingVenue, longitude: Number.parseFloat(e.target.value) })
+                                        }
+                                        placeholder="33.4608"
+                                    />
+                                </div>
                             </div>
                             <div className="flex gap-2">
                                 <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
-                                    Update User
+                                    Update Venue
                                 </Button>
-                                <Link href="/admin/users">
+                                <Link href="/admin/venues">
                                     <Button type="button" variant="outline">
                                         Cancel
                                     </Button>

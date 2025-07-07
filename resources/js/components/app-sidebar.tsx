@@ -18,7 +18,7 @@ export function AppSidebar() {
             href: '/dashboard',
             icon: LayoutGrid,
         },
-        ...(auth.user.role === 'user'
+        ...(auth.user.role === 'admin'
             ? [
                   {
                       title: 'Users',

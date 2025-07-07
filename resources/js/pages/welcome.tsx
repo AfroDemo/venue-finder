@@ -45,18 +45,20 @@ function VenueCard({ venue, userLocation }: { venue: Venue; userLocation: UserLo
     const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`;
 
     return (
-        <Card className="h-full transition-shadow hover:shadow-lg">
+        <Card className="h-full transition-shadow hover:shadow-lg dark:hover:shadow-gray-800/50">
             <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                    <MapPin className="h-4 w-4 text-blue-600" />
+                    <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     {venue.name}
                 </CardTitle>
-                {venue.block_name && <CardDescription className="text-sm text-gray-600">Block: {venue.block_name}</CardDescription>}
+                {venue.block_name && (
+                    <CardDescription className="text-sm text-gray-600 dark:text-gray-300">Block: {venue.block_name}</CardDescription>
+                )}
             </CardHeader>
             <CardContent className="space-y-2">
-                <p className="line-clamp-2 text-sm text-gray-700">{venue.description}</p>
+                <p className="line-clamp-2 text-sm text-gray-700 dark:text-gray-200">{venue.description}</p>
                 {distance !== null && (
-                    <p className="text-sm font-medium text-green-600">
+                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
                         Distance: {distance < 1000 ? `${distance}m` : `${(distance / 1000).toFixed(1)}km`}
                     </p>
                 )}
@@ -268,24 +270,30 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
     return (
         <Layout breadcrumbs={breadcrumbs} user={auth.user}>
             <Head title="MUST Venue Finder" />
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 <div className="container mx-auto max-w-7xl p-4">
                     {/* Hero Section */}
-                    <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-100 to-gray-100 py-12 text-center">
-                        <h1 className="mb-4 text-4xl font-bold text-gray-900 md:text-5xl">MUST Venue Finder</h1>
-                        <p className="mx-auto max-w-2xl text-lg text-gray-600 md:text-xl">
+                    <div className="mb-8 rounded-lg bg-gradient-to-r from-blue-100 to-gray-100 py-12 text-center dark:from-blue-900/30 dark:to-gray-800/30">
+                        <h1 className="mb-4 text-4xl font-bold text-gray-900 md:text-5xl dark:text-white">MUST Venue Finder</h1>
+                        <p className="mx-auto max-w-2xl text-lg text-gray-600 md:text-xl dark:text-gray-300">
                             Easily find and navigate to venues on Mbeya University campus
                         </p>
                     </div>
 
                     {/* Flash Messages */}
-                    {flash.success && <div className="mb-6 rounded-md bg-green-100 p-4 text-green-700">{flash.success}</div>}
-                    {flash.error && <div className="mb-6 rounded-md bg-red-100 p-4 text-red-700">{flash.error}</div>}
+                    {flash.success && (
+                        <div className="mb-6 rounded-md bg-green-100 p-4 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                            {flash.success}
+                        </div>
+                    )}
+                    {flash.error && (
+                        <div className="mb-6 rounded-md bg-red-100 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-300">{flash.error}</div>
+                    )}
 
                     {/* Search and Sort */}
                     <div className="mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
                         <div className="relative w-full sm:w-80">
-                            <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                            <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                             <Input
                                 type="text"
                                 placeholder="Search venues..."
@@ -309,7 +317,7 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
                     <div className="grid gap-8 lg:grid-cols-2">
                         <div>
                             <div className="mb-4 flex items-center justify-between">
-                                <h2 className="text-xl font-semibold">Venues ({filteredVenues.length})</h2>
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Venues ({filteredVenues.length})</h2>
                                 <Button variant="outline" size="sm" onClick={() => setShowMap(!showMap)} className="lg:hidden">
                                     {showMap ? <ChevronUp className="mr-2 h-4 w-4" /> : <ChevronDown className="mr-2 h-4 w-4" />}
                                     {showMap ? 'Hide Map' : 'Show Map'}
@@ -318,8 +326,8 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
                             {filteredVenues.length === 0 ? (
                                 <Card>
                                     <CardContent className="py-8 text-center">
-                                        <MapPin className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                                        <p className="text-gray-600">
+                                        <MapPin className="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-500" />
+                                        <p className="text-gray-600 dark:text-gray-300">
                                             {searchTerm ? 'No venues found matching your search.' : 'No venues available.'}
                                         </p>
                                     </CardContent>
@@ -333,10 +341,12 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
                             )}
                         </div>
                         <div className={`${showMap ? 'block' : 'hidden'} lg:block`}>
-                            <h2 className="mb-4 text-xl font-semibold">Map</h2>
-                            <div className="h-96 overflow-hidden rounded-lg shadow-lg">
+                            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Map</h2>
+                            <div className="h-96 overflow-hidden rounded-lg shadow-lg dark:shadow-gray-800/50">
                                 {loading ? (
-                                    <div className="flex h-full items-center justify-center bg-gray-200">Loading map...</div>
+                                    <div className="flex h-full items-center justify-center bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                                        Loading map...
+                                    </div>
                                 ) : (
                                     <VenueMap
                                         venues={filteredVenues}
@@ -349,7 +359,7 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
                                 )}
                             </div>
                             {userLocation && (
-                                <p className="mt-2 text-sm text-gray-600">
+                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                                     Your location: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
                                 </p>
                             )}

@@ -27,28 +27,38 @@ interface EditUserProps {
 }
 
 export default function EditUser({ user }: EditUserProps) {
-    const [editingUser, setEditingUser] = useState<User>({ ...user });
+    const [editingUser, setEditingUser] = useState<User>({ ...user, password: '' });
 
     useEffect(() => {
-        setEditingUser({ ...user });
+        setEditingUser({ ...user, password: '' });
     }, [user]);
 
     const handleUpdateUser = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const payload: Partial<User> = {
+                name: editingUser.name,
+                email: editingUser.email,
+                role: editingUser.role,
+            };
+
+            // Only include password if it's not empty
+            if (editingUser.password) {
+                payload.password = editingUser.password;
+            }
+
             await router.put(
                 `/admin/users/${editingUser.id}`,
-                {
-                    name: editingUser.name,
-                    email: editingUser.email,
-                    role: editingUser.role,
-                    password: editingUser.password || undefined,
-                },
+                payload,
                 {
                     onSuccess: () => {
                         alert('User updated successfully!');
+                        setEditingUser({ ...editingUser, password: '' });
                     },
-                    onError: () => alert('Error updating user'),
+                    onError: (errors) => {
+                        console.error('Update errors:', errors);
+                        alert('Error updating user: ' + (errors.message || 'Unknown error'));
+                    },
                 },
             );
         } catch (error) {
