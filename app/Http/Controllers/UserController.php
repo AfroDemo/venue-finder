@@ -15,13 +15,13 @@ class UserController extends Controller
     {
         try {
             $users = User::all();
-            return Inertia::render('user/index', [
+            return Inertia::render('admin/user/index', [
                 'users' => $users,
                 'flash' => session('flash', []),
             ]);
         } catch (\Exception $e) {
             Log::error('Error fetching users: ' . $e->getMessage());
-            return Inertia::render('user/index', [
+            return Inertia::render('admin/user/index', [
                 'users' => [],
                 'flash' => ['error' => 'Failed to load users. Please try again.'],
             ]);
@@ -30,14 +30,14 @@ class UserController extends Controller
 
     public function create()
     {
-        return Inertia::render('user/create', [
+        return Inertia::render('admin/user/create', [
             'flash' => session('flash', []),
         ]);
     }
 
     public function edit(User $user)
     {
-        return Inertia::render('user/edit', [
+        return Inertia::render('admin/user/edit', [
             'user' => $user,
             'flash' => session('flash', []),
         ]);

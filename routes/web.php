@@ -7,7 +7,7 @@ use App\Http\Controllers\VenueController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'admin'])->group(function () {
+// Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/venues', [VenueController::class, 'index'])->name('admin.venues');
     Route::get('/admin/venues/create', [VenueController::class, 'create'])->name('admin.venues.create');
@@ -21,6 +21,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-});
+// });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
