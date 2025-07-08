@@ -1,0 +1,1 @@
+import{j as e}from"./app-B-pbYcdD.js";import{c as o}from"./createLucideIcon-Ceyg_5CD.js";const x=({className:r,...a})=>e.jsx("textarea",{className:o("p-2 border rounded-xl w-full",r),...a});export{x as T};
