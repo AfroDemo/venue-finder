@@ -46,7 +46,7 @@ export default function Dashboard({ venues, auth, flash }: DashboardProps) {
                 {flash.error && <div className="mb-4 rounded-md bg-red-100 p-4 text-red-700">{flash.error}</div>}
 
                 {/* Stats Cards */}
-                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+                {/* <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Venues</CardTitle>
@@ -74,7 +74,7 @@ export default function Dashboard({ venues, auth, flash }: DashboardProps) {
                             <div className="text-2xl font-bold">{safeVenues.filter((v) => !v.block_name).length}</div>
                         </CardContent>
                     </Card>
-                </div>
+                </div> */}
 
                 {/* Recent Venues */}
                 <Card>

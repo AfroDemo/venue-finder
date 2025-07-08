@@ -256,16 +256,22 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
         }
     };
 
-    const filteredVenues = venues
-        .filter((venue) => venue.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        .sort((a, b) => {
-            if (sortBy === 'distance' && userLocation) {
-                const distA = calculateDistance(userLocation.lat, userLocation.lng, a.latitude, a.longitude);
-                const distB = calculateDistance(userLocation.lat, userLocation.lng, b.latitude, b.longitude);
-                return distA - distB;
-            }
-            return a.name.localeCompare(b.name);
-        });
+    // Filter venues only when search term is not empty
+    const filteredVenues = searchTerm.trim()
+        ? venues
+            .filter((venue) => venue.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            .sort((a, b) => {
+                if (sortBy === 'distance' && userLocation) {
+                    const distA = calculateDistance(userLocation.lat, userLocation.lng, a.latitude, a.longitude);
+                    const distB = calculateDistance(userLocation.lat, userLocation.lng, b.latitude, b.longitude);
+                    return distA - distB;
+                }
+                return a.name.localeCompare(b.name);
+            })
+        : [];
+
+    // Check if user has started searching
+    const hasSearched = searchTerm.trim().length > 0;
 
     return (
         <Layout breadcrumbs={breadcrumbs} user={auth.user}>
@@ -302,33 +308,52 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
                                 className="w-full py-2 pl-10 text-base"
                             />
                         </div>
-                        <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'name' | 'distance')}>
-                            <SelectTrigger className="w-40">
-                                <SelectValue placeholder="Sort by" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="name">Sort by Name</SelectItem>
-                                {userLocation && <SelectItem value="distance">Sort by Distance</SelectItem>}
-                            </SelectContent>
-                        </Select>
+                        {hasSearched && (
+                            <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'name' | 'distance')}>
+                                <SelectTrigger className="w-40">
+                                    <SelectValue placeholder="Sort by" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="name">Sort by Name</SelectItem>
+                                    {userLocation && <SelectItem value="distance">Sort by Distance</SelectItem>}
+                                </SelectContent>
+                            </Select>
+                        )}
                     </div>
 
                     {/* Venues and Map */}
                     <div className="grid gap-8 lg:grid-cols-2">
                         <div>
-                            <div className="mb-4 flex items-center justify-between">
-                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Venues ({filteredVenues.length})</h2>
-                                <Button variant="outline" size="sm" onClick={() => setShowMap(!showMap)} className="lg:hidden">
-                                    {showMap ? <ChevronUp className="mr-2 h-4 w-4" /> : <ChevronDown className="mr-2 h-4 w-4" />}
-                                    {showMap ? 'Hide Map' : 'Show Map'}
-                                </Button>
-                            </div>
-                            {filteredVenues.length === 0 ? (
+                            {hasSearched && (
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                        Venues ({filteredVenues.length})
+                                    </h2>
+                                    <Button variant="outline" size="sm" onClick={() => setShowMap(!showMap)} className="lg:hidden">
+                                        {showMap ? <ChevronUp className="mr-2 h-4 w-4" /> : <ChevronDown className="mr-2 h-4 w-4" />}
+                                        {showMap ? 'Hide Map' : 'Show Map'}
+                                    </Button>
+                                </div>
+                            )}
+
+                            {!hasSearched ? (
+                                <Card>
+                                    <CardContent className="py-12 text-center">
+                                        <Search className="mx-auto mb-4 h-16 w-16 text-gray-400 dark:text-gray-500" />
+                                        <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+                                            Start Searching for Venues
+                                        </h3>
+                                        <p className="text-gray-600 dark:text-gray-300">
+                                            Use the search box above to find venues on Mbeya University campus
+                                        </p>
+                                    </CardContent>
+                                </Card>
+                            ) : filteredVenues.length === 0 ? (
                                 <Card>
                                     <CardContent className="py-8 text-center">
                                         <MapPin className="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-500" />
                                         <p className="text-gray-600 dark:text-gray-300">
-                                            {searchTerm ? 'No venues found matching your search.' : 'No venues available.'}
+                                            No venues found matching "{searchTerm}". Try a different search term.
                                         </p>
                                     </CardContent>
                                 </Card>
@@ -340,30 +365,33 @@ Google Maps: https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}
                                 </div>
                             )}
                         </div>
-                        <div className={`${showMap ? 'block' : 'hidden'} lg:block`}>
-                            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Map</h2>
-                            <div className="h-96 overflow-hidden rounded-lg shadow-lg dark:shadow-gray-800/50">
-                                {loading ? (
-                                    <div className="flex h-full items-center justify-center bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                        Loading map...
-                                    </div>
-                                ) : (
-                                    <VenueMap
-                                        venues={filteredVenues}
-                                        userLocation={userLocation}
-                                        centerLocation={CAMPUS_CENTER}
-                                        defaultZoom={16}
-                                        showUserRadius={true}
-                                        showDirections={false}
-                                    />
+
+                        {hasSearched && (
+                            <div className={`${showMap ? 'block' : 'hidden'} lg:block`}>
+                                <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Map</h2>
+                                <div className="h-96 overflow-hidden rounded-lg shadow-lg dark:shadow-gray-800/50">
+                                    {loading ? (
+                                        <div className="flex h-full items-center justify-center bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                                            Loading map...
+                                        </div>
+                                    ) : (
+                                        <VenueMap
+                                            venues={filteredVenues}
+                                            userLocation={userLocation}
+                                            centerLocation={CAMPUS_CENTER}
+                                            defaultZoom={16}
+                                            showUserRadius={true}
+                                            showDirections={false}
+                                        />
+                                    )}
+                                </div>
+                                {userLocation && (
+                                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                        Your location: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                                    </p>
                                 )}
                             </div>
-                            {userLocation && (
-                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                    Your location: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
-                                </p>
-                            )}
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

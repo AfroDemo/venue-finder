@@ -348,11 +348,11 @@ const VenueMap: React.FC<VenueMapProps> = ({
             </div>
 
             {/* Venue counter */}
-            <div className="absolute bottom-4 left-4 z-[1000] rounded-lg bg-white p-2 shadow-lg">
+            {/* <div className="absolute bottom-4 left-4 z-[1000] rounded-lg bg-white p-2 shadow-lg">
                 <p className="text-sm font-medium text-gray-700">
                     🏢 {venues.length} venue{venues.length !== 1 ? 's' : ''} found
                 </p>
-            </div>
+            </div> */}
         </div>
     );
 };
